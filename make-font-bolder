@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+# You can get a shell with: nix-shell -p "(python3.withPackages (ps: with ps; [ fontforge ]))"
+import fontforge
+import argparse
+import string
+
+def make_font_bolder(filename, out_filename, shape="circular", size=50, glyphs=None, method="contour", glyphs_exclude=[], suffix=None):
+    """glyphe_list might be like ["A", "B", "C"]"""
+    font = fontforge.open(filename)
+    if type(size) == int or type(size) == float:
+        size = (size,)
+    # We loop on all glyphs. set(font) is needed as otherwise, some glyphs might appear twice or more
+    # (no idea why, I got this bug for M and V letters). Without this test, the glyphs would be processed
+    # multiple times, giving weird results
+    for glyph in set(font):
+        glyph_unicode = None
+        try:
+            glyph_unicode = chr(font[glyph].unicode)
+        except:
+            pass
+        if glyphs and not (glyph in glyphs or glyph_unicode in glyphs):
+            print(f"The glyph {glyph} ({glyph_unicode}) will be ignored")
+            continue
+        if glyph in glyphs_exclude or glyph_unicode in glyphs_exclude:
+            print(f"The glyph {glyph} ({glyph_unicode}) will be ignored (excluded)")
+            continue
+        print(f"=== Dealing with glyph {glyph} ({glyph_unicode})")
+        # Other stroke contour can be used to create a different shape, e.g. to make angles squared etc
+        if method == "contour":
+            font[glyph].foreground = (font[glyph].foreground.stroke(shape, *size)
+                                      + font[glyph].foreground).removeOverlap().addExtrema().simplify().round()
+        else:
+            if len(size) != 1:
+                raise NameError("You need to specify exactly one size in changeWeight mode")
+            font[glyph].changeWeight(size[0], "CJK", 0, 0, "squish", 1, 0)
+    # We change the name of the font:
+    if suffix:
+        if font.cidfamilyname:
+            font.cidfamilyname += suffix
+        if font.cidfontname:
+            font.cidfontname += suffix
+        if font.cidfullname:
+            font.cidfullname += suffix
+        if font.fontname:
+            font.fontname += suffix
+        if font.fullname:
+            font.fullname += suffix
+        if font.familyname:
+            font.familyname += suffix
+    font.generate(out_filename)
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='make-font-bolder',
+        description='Make a font bolder')
+    parser.add_argument('--method', choices=["contour", "changeWeight"], default="contour", 
+                        help='Method to use, either changeWeight or contour')
+    parser.add_argument('--size', type=float, default=30, 
+                        help='How much bold to add (range around 0-100 are usually rendering fine)')
+    parser.add_argument('--sizes', type=float, default=[], nargs="+",
+                        help='Like --size, bu depending on the shape, you may want to specify more arguments like --shape caligraphic --sizes 42 43 10. See the shape for details on the number of arguments. Note that --sizes must NOT be right before the file name as otherwise it might consider the filename as a size, so better put the filenames first.')
+    parser.add_argument('--shape', type=str, choices=[ "circular", "elliptical", "calligraphic" ],
+                        default="circular",
+                        help='Shape of the contour used to make it bigger (works only in contour mode). Circular expects a single --size, elliptical expects --sizes WIDTH MINORWIDTH [ANGLE], and calligraphic (i.e. rectangle) expects --sizes WIDTH HEIGHT [ANGLE]')
+    parser.add_argument('--glyphs', type=str, default=None, nargs="+",
+                        help='List of glyphs to consider (you can add either unicode or glyph name), like --glyphs A B C é Ugrave. By default, treats all glyphs')
+    parser.add_argument('--glyphs-exclude', type=str, default=[], nargs="+",
+                        help='List of glyphs to exclude (you can add either unicode or glyph name), like --glyphs-exclude A B C é Ugrave. By default, treats all glyphs')
+    parser.add_argument('--glyphs-family', choices=["alpha", "digits", "accents", "symbols", "all"], default=[], nargs="+",
+                        help='Adds groups of lists to turn into bold, you might specify multiple like --glyphs-family alpha numbers accents symbols. If not specified, treats all glyphs, if "all" is specified, treats all families (note that some glyphs might NOT be part of a family). Useful if some glyphs are making the script to crash.')
+    parser.add_argument('--suffix-name', type=str, default=None, nargs="+",
+                        help='Suffix of the name of the new font')
+    parser.add_argument('input_font_filename', help='path to the font to make bolder. It is safer to put it before optional arguments as some commands like --size or --glyphs are not allowed right before the positional arguments.')
+    parser.add_argument('output_font_filename', help='path to the font to create. It is safer to put it before optional arguments as some commands like --size or --glyphs are not allowed right before the positional arguments.')
+    args = parser.parse_args()
+    for fam in args.glyphs_family:
+        if fam in [ "alpha", "all" ]:
+            args.glyphs = (args.glyphs or []) + list(string.ascii_lowercase + string.ascii_uppercase)
+        if fam in [ "digits", "all" ]:
+            args.glyphs = (args.glyphs or []) + list(string.digits)
+        if fam in [ "accents", "all" ]:
+            args.glyphs = (args.glyphs or []) + list("áéíóúýèàäëïöüÿâêîôûŷçÇ")
+        if fam in [ "symbols", "all"]:
+            args.glyphs = (args.glyphs or []) + list(",.;:\\/$£€*-+§°={}()[]|_@\"~&'«»")
+            
+    make_font_bolder(
+        args.input_font_filename,
+        args.output_font_filename,
+        shape=args.shape,
+        size=tuple(args.sizes) if args.sizes else (args.size,),
+        glyphs=args.glyphs,
+        glyphs_exclude=args.glyphs_exclude,
+        method=args.method,
+        suffix=str(args.sizes) if args.sizes else f"{args.size}"
+    )
+    print(f"The bold font has been created in {args.output_font_filename}")
+
+
+if __name__ == '__main__':
+    main()

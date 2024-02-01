@@ -1,0 +1,71 @@
+% Compile with lualatex
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{fontspec}
+\usepackage{verbatim}
+\date{}
+
+\title{Demo of \texttt{make-font-bolder}}
+\author{Tobias Bora}
+
+\NewDocumentCommand{\testFont}{m}{%
+  \noindent\makebox[5cm][l]{%
+    \tiny #1:
+  }%
+  {\fontspec{#1} The quick brown fox jumps over the lazy dog.}\par
+}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This is a demonstration of my simple script \texttt{make-font-bolder}, based on FontForge. You need to have fontforge installed, for instance if you have nix installed you can do:
+
+\begin{verbatim}
+nix-shell -p "(python3.withPackages (ps: with ps; [ fontforge ]))"
+\end{verbatim}
+
+\section{Demo}
+
+\texttt{NimbusSanL-ReguItal.ttf} is the original font, the other font have been generated with commands like:
+\begin{verbatim}
+./make-font-bolder --size 40 NimbusSanL-ReguItal.ttf NimbusSanL-ReguItal-40.ttf
+\end{verbatim}
+
+
+\testFont{NimbusSanL-ReguItal.ttf}
+
+\testFont{NimbusSanL-ReguItal-20.ttf}
+
+\testFont{NimbusSanL-ReguItal-40.ttf}
+
+\testFont{NimbusSanL-ReguItal-60.ttf}
+
+\testFont{NimbusSanL-ReguItal-80.ttf}
+
+\testFont{NimbusSanL-ReguItal-100.ttf}
+
+\testFont{NimbusSanL-ReguItal-120.ttf}
+
+\medskip
+
+{\fontspec{NimbusSanL-ReguItal-80.ttf} Portez ce vieux whisky au juge blond qui fume sur son île intérieure, à côté de l'alcôve ovoïde, où les bûches se consument dans l'âtre, ce qui lui permet de penser à la cænogénèse de l'être dont il est question dans la cause ambiguë entendue à Moÿ, dans un capharnaüm qui, pense-t-il, diminue çà et là la qualité de son œuvre.
+
+  \medskip
+
+  PORTEZ CE VIEUX WHISKY AU JUGE BLOND QUI FUME SUR SON ÎLE INTÉRIEURE, À CÔTÉ DE L'ALCÔVE OVOÏDE, OÙ LES BÛCHES SE CONSUMENT DANS L'ÂTRE, CE QUI LUI PERMET DE PENSER À LA CÆNOGÉNÈSE DE L'ÊTRE DONT IL EST QUESTION DANS LA CAUSE AMBIGUË ENTENDUE À MOŸ, DANS UN CAPHARNAÜM QUI, PENSE-T-IL, DIMINUE ÇÀ ET LÀ LA QUALITÉ DE SON ŒUVRE !
+}
+
+\medskip
+
+If for some reasons some useless glyphs are not working correctly, you might want to exclude this character with \texttt{--glyph-exclude yourchar}, only deal with basic characters (cf \texttt{--glyph-family}), use \texttt{--method changeWeight}, or use a different shape or size. See \texttt{make-font-bolder -h} for details.
+
+\end{document}
+%%% Local Variables: 
+%%% mode: latex 
+%%% TeX-engine: luatex
+%%% TeX-master: t 
+%%% End:

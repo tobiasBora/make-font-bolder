@@ -4,13 +4,13 @@
 
 ![demo](./Demo/screenshot.png)
 
-To see a demo, check out ./Demo/demo.pdf
+This is by no mean the cleanest way to generate bold characters (we basically mostly enlarge the path of the shape), but it can give good enough without too much hassle. To see a demo, check out [./Demo/demo.pdf](./Demo/demo.pdf).
 
 ## Usage
 
 To run the script, if you have nix installed, just run:
 ```
-$ nix run github:tobiasBora/make-font-bolder#make-font-bolder -- --size 30 YourInputFont.ttf YourOutputFont.ttf
+$ nix run github:tobiasBora/make-font-bolder -- --size 30 YourInputFont.ttf YourOutputFont.ttf
 ```
 
 Otherwise, you make sure to install `fontforge` (you can create a temporarily shell with nix with `nix-shell -p "(python3.withPackages (ps: with ps; [ fontforge ]))"`), and run:

@@ -22,10 +22,17 @@
 
 \section{Introduction}
 
-This is a demonstration of my simple script \texttt{make-font-bolder}, based on FontForge. You need to have fontforge installed, for instance if you have nix installed you can do:
+This is a demonstration of my simple script \texttt{make-font-bolder}, based on FontForge. If you have nix installed, you can simply run this software with:
 
 \begin{verbatim}
-nix-shell -p "(python3.withPackages (ps: with ps; [ fontforge ]))"
+$ nix run github:tobiasBora/make-font-bolder -- --size 30 InputFont.ttf OutputFont.ttf
+\end{verbatim}
+
+Otherwise, you need to have fontforge installed, for instance if you have nix installed you can do:
+
+\begin{verbatim}
+$ nix-shell -p "(python3.withPackages (ps: with ps; [ fontforge ]))"
+$ ./make-font-bolder --size 30 YourInputFont.ttf YourOutputFont.ttf
 \end{verbatim}
 
 \section{Demo}

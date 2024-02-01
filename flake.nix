@@ -32,6 +32,7 @@
         in
           {
             packages.make-font-bolder = pkgs.make-font-bolder;
+            packages.default = pkgs.make-font-bolder;
           }
       ));
 }

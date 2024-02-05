@@ -4,7 +4,7 @@
 
 ![demo](./Demo/screenshot.png)
 
-This is by no mean the cleanest way to generate bold characters (we basically mostly enlarge the path of the shape), but it can give good enough without too much hassle. To see a demo, check out [./Demo/demo.pdf](./Demo/demo.pdf).
+This is by no mean the cleanest way to generate bold characters (we basically mostly enlarge the path of the shape), but it can give good enough results without too much hassle. To see a demo, check out [./Demo/demo.pdf](./Demo/demo.pdf).
 
 ## Usage
 
